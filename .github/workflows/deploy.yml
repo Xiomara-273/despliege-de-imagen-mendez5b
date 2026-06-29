@@ -50,7 +50,7 @@ jobs:
         echo "Port: 22"
 
     - name: Probar conexion ssh
-      uses: appleboy/ssh-action@v0.1.5
+      uses: appleboy/ssh-action@v0.1
       with:
         host: ${{ secrets.VPS_HOST }}
         username: ${{ secrets.VPS_USER }}
