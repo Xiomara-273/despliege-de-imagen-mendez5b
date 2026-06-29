@@ -1,188 +1,160 @@
-from flask import Flask, render_template_string
+from flask import Flask, render_template_string, request
 
 app = Flask(__name__)
 
-HTML = """
+# Función matemática core (Pytest compatible)
+def celsius_a_fahrenheit(celsius: float) -> float:
+    return (celsius * 9/5) + 32
+
+# URL del "Modelo" de imagen (Optimus Prime / Autobot)
+ROBOT_MODEL_URL = "https://w7.pngwing.com/pngs/381/660/png-transparent-optimus-prime-transformers-bumblebee-autobot-decepticon-optimus-prime-fictional-character-action-figure-transformers.png"
+
+HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reloj Digital</title>
-
+    <title>AUTOBOT - Matrix Calculator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    
     <style>
-        *{
-            margin:0;
-            padding:0;
-            box-sizing:border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        :root {
+            --cyber-blue: #00f0ff;
+            --cyber-red: #ff0055;
+            --matrix-dark: #0a0c10;
         }
 
-        body{
-            height:100vh;
-            display:flex;
-            justify-content:center;
-            align-items:center;
-            overflow:hidden;
-            background:linear-gradient(-45deg,#0f172a,#1e3a8a,#312e81,#0f172a);
-            background-size:400% 400%;
-            animation:gradient 15s ease infinite;
+        body {
+            background-color: var(--matrix-dark);
+            background-image: radial-gradient(circle at 50% 50%, rgba(0, 240, 255, 0.1) 0%, transparent 80%);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Rajdhani', sans-serif;
+            color: white;
+            margin: 0;
+            overflow: hidden;
         }
 
-        @keyframes gradient{
-            0%{background-position:0% 50%;}
-            50%{background-position:100% 50%;}
-            100%{background-position:0% 50%;}
+        .transformer-panel {
+            background: rgba(16, 20, 28, 0.9);
+            border: 2px solid #1a2333;
+            border-radius: 15px;
+            padding: 2.5rem;
+            max-width: 500px;
+            width: 90%;
+            backdrop-filter: blur(15px);
+            box-shadow: 0 0 50px rgba(0, 240, 255, 0.2);
+            text-align: center;
+            position: relative;
         }
 
-        .card{
-            background:rgba(255,255,255,0.08);
-            backdrop-filter:blur(15px);
-            -webkit-backdrop-filter:blur(15px);
-            border:1px solid rgba(255,255,255,0.2);
-            border-radius:25px;
-            padding:50px;
-            text-align:center;
-            box-shadow:0 8px 32px rgba(0,0,0,0.3);
-            width:90%;
-            max-width:700px;
+        /* Contenedor del "Modelo" de imagen */
+        .model-container {
+            width: 180px;
+            height: 180px;
+            margin: 0 auto 1.5rem;
+            background: radial-gradient(circle, rgba(0,240,255,0.2) 0%, transparent 70%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(0, 240, 255, 0.3);
         }
 
-        h1{
-            color:white;
-            font-size:2.5rem;
-            margin-bottom:20px;
-            letter-spacing:2px;
+        .model-image {
+            max-width: 140px;
+            max-height: 140px;
+            filter: drop-shadow(0 0 10px var(--cyber-blue));
         }
 
-        .clock{
-            color:#00e5ff;
-            font-size:5rem;
-            font-weight:bold;
-            text-shadow:0 0 20px rgba(0,229,255,0.7);
-            margin:20px 0;
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            letter-spacing: 3px;
+            color: var(--cyber-blue);
+            margin-bottom: 1rem;
         }
 
-        .date{
-            color:white;
-            font-size:1.6rem;
-            margin-top:10px;
+        .cyber-input {
+            background: #000 !important;
+            border: 1px solid var(--cyber-blue) !important;
+            color: white !important;
+            font-family: 'Orbitron', sans-serif;
+            text-align: center;
         }
 
-        .subtitle{
-            color:#cbd5e1;
-            margin-top:20px;
-            font-size:1.1rem;
+        .btn-cyber {
+            background: transparent;
+            border: 2px solid var(--cyber-red);
+            color: white;
+            font-family: 'Orbitron', sans-serif;
+            width: 100%;
+            margin-top: 1rem;
+            transition: 0.3s;
         }
 
-        .circle{
-            position:absolute;
-            border-radius:50%;
-            background:rgba(255,255,255,0.08);
-            animation:float 10s infinite ease-in-out;
+        .btn-cyber:hover {
+            background: var(--cyber-red);
+            box-shadow: 0 0 20px var(--cyber-red);
         }
 
-        .circle:nth-child(1){
-            width:200px;
-            height:200px;
-            top:10%;
-            left:10%;
-        }
-
-        .circle:nth-child(2){
-            width:300px;
-            height:300px;
-            bottom:5%;
-            right:5%;
-            animation-duration:15s;
-        }
-
-        .circle:nth-child(3){
-            width:150px;
-            height:150px;
-            top:70%;
-            left:20%;
-            animation-duration:12s;
-        }
-
-        @keyframes float{
-            0%,100%{
-                transform:translateY(0px);
-            }
-            50%{
-                transform:translateY(-30px);
-            }
-        }
-
-        @media(max-width:768px){
-            .clock{
-                font-size:3rem;
-            }
-
-            .date{
-                font-size:1.2rem;
-            }
-
-            h1{
-                font-size:2rem;
-            }
+        .result-hud {
+            margin-top: 1.5rem;
+            padding: 10px;
+            border-left: 4px solid var(--cyber-blue);
+            background: rgba(0, 240, 255, 0.05);
+            text-align: left;
         }
     </style>
 </head>
 <body>
 
-<div class="circle"></div>
-<div class="circle"></div>
-<div class="circle"></div>
+    <div class="transformer-panel">
+        <div class="model-container">
+            <img src="{{ robot_img }}" class="model-image" alt="Core Model">
+        </div>
+        
+        <h1>MATRIX CALCULATOR</h1>
+        
+        <form method="POST">
+            <input type="number" step="any" name="celsius" class="form-control cyber-input" placeholder="INGRESE CELSIUS" required value="{{ celsius_enviado }}">
+            <button type="submit" class="btn btn-cyber">PROCESAR VECTOR 🔄</button>
+        </form>
 
-<div class="card">
-    <h1>🕒 RELOJ DIGITAL</h1>
-
-    <div id="clock" class="clock">00:00:00</div>
-
-    <div id="date" class="date"></div>
-
-    <div class="subtitle">
-        Landing Page desarrollada con Flask
+        {% if resultado is not none %}
+            <div class="result-hud">
+                <small style="color: var(--cyber-blue)">TELEMETRÍA:</small><br>
+                {{ celsius_enviado }}°C ➔ <strong>{{ resultado }}°F</strong>
+            </div>
+        {% endif %}
     </div>
-</div>
-
-<script>
-
-function actualizarReloj(){
-
-    const ahora = new Date();
-
-    const hora = String(ahora.getHours()).padStart(2,'0');
-    const minuto = String(ahora.getMinutes()).padStart(2,'0');
-    const segundo = String(ahora.getSeconds()).padStart(2,'0');
-
-    document.getElementById("clock").innerHTML =
-        `${hora}:${minuto}:${segundo}`;
-
-    const opciones = {
-        weekday:'long',
-        year:'numeric',
-        month:'long',
-        day:'numeric'
-    };
-
-    document.getElementById("date").innerHTML =
-        ahora.toLocaleDateString('es-ES', opciones);
-}
-
-actualizarReloj();
-setInterval(actualizarReloj,1000);
-
-</script>
 
 </body>
 </html>
 """
 
-@app.route("/")
+@app.route('/', methods=['GET', 'POST'])
 def home():
-    return render_template_string(HTML)
-#Pruebas de mas de una vez
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    resultado = None
+    celsius_enviado = ""
+    if request.method == 'POST':
+        try:
+            celsius_enviado = request.form.get('celsius', '').strip()
+            if celsius_enviado:
+                resultado = celsius_a_fahrenheit(float(celsius_enviado))
+        except ValueError:
+            resultado = "ERR_VECTOR"
+            
+    return render_template_string(HTML_TEMPLATE, 
+                                 resultado=resultado, 
+                                 celsius_enviado=celsius_enviado,
+                                 robot_img=ROBOT_MODEL_URL)
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', debug=True, port=5000)
+
+He echado un vistazo a tu código y he preparado esta presentación técnica para mostrarte cómo integrar correctamente la imagen del robot y mejorar la estructura. ¡Espero que te sea de gran ayuda!

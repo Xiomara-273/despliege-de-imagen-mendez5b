@@ -1,31 +1,35 @@
 version: '3.9'
 
 services:
-xiomara:
-image:  ghcr.io/xiomara-273/proyecto:3.0.0
-networks:
-- traefik-public
-deploy:
-replicas: 1
-update_config:
-parallelism: 1
-delay: 10s
-restart_policy:
-condition: on-failure
-labels:
+  xiomara:
+    image: ghcr.io/xiomra-273/proyecto:3.0.0
+    networks:
+      - traefik-public
+
+    deploy:
+      replicas: 1
+
+      update_config:
+        parallelism: 1
+        delay: 10s
+
+      restart_policy:
+        condition: on-failure
+
+      # ¡OJO AQUÍ! "labels:" debe estar alineado exactamente con "replicas", "update_config" y "restart_policy"
+      labels:
         - "traefik.enable=true"
         - "traefik.http.routers.xiomara.entrypoints=http"
-        - "traefik.http.routers.xiomara.rule=Host(xiomara.byronrm.com)"
+        - "traefik.http.routers.xiomara.rule=Host(`xiomara.byronrm.com`)"
         - "traefik.http.middlewares.xiomara-https-redirect.redirectscheme.scheme=https"
         - "traefik.http.routers.xiomara.middlewares=xiomara-https-redirect"
         - "traefik.http.routers.xiomara-secure.entrypoints=https"
-        - "traefik.http.routers.xiomara-secure.rule=Host(xiomara.byronrm.com)"
+        - "traefik.http.routers.xiomara-secure.rule=Host(`xiomara.byronrm.com`)"
         - "traefik.http.routers.xiomara-secure.tls=true"
         - "traefik.http.routers.xiomara-secure.tls.certresolver=http"
-        - "traefik.http.routers.xiomara-secure.service=xiomara"
-        - "traefik.http.services.xiomara.loadbalancer.server.port=5000"
+        - "traefik.http.services.xiomara-secure.loadbalancer.server.port=5000"
         - "traefik.docker.network=traefik-public"
 
 networks:
-traefik-public:
-external: true
+  traefik-public:
+    external: true

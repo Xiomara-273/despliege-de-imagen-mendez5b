@@ -1,26 +1,22 @@
-# Usar una imagen oficial de Python en su versión Alpine (extremadamente liviana)
-FROM python:3.11-alpine
+# Paso 1: buscar una aplicacion base
+FROM python:3.12-alpine
 
-# Establecer el directorio de trabajo dentro del contenedor
+# Paso 2: crear el directorio de trabajo en el contenedor
 WORKDIR /app
 
-# Copiar el archivo de requerimientos primero para aprovechar la caché de Docker
-COPY requirements.txt .
+# Paso 3: copiar el archivo de dependencias
+COPY requirements.txt /app
 
-# Instalar las dependencias de Python sin guardar caché de pip para reducir espacio
+# Paso 4: instalar las dependencias
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copiar el resto del código de la aplicación al contenedor
-COPY app.py .
+# Paso 5: copiar todo el código fuente (incluyendo la app y los tests)
+COPY . /app
 
-# Eliminar carpetas innecesarias dentro del contenedor (como el entorno virtual local)
-RUN rm -rf venv
+# Paso 6: exponer el puerto 5000
+EXPOSE 5000  
 
-# Exponer el puerto en el que corre Flask
-EXPOSE 5000
 
-# Variables de entorno para asegurar que la salida se muestre en consola sin búfer
-ENV PYTHONUNBUFFERED=1
 
-# Comando para ejecutar la aplicación
+# Paso 7: ejecutar la aplicación
 CMD ["python", "app.py"]
