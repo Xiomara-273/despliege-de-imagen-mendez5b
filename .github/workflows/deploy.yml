@@ -36,11 +36,10 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }} 
 
     - name: Contruir la imagen
-      run: docker build -t ghcr.io/xiomara-273/proyecto:3.0.0 .
+      run: docker build -t ghcr.io/xiomara-273/app-landing:3.0.0 .
 
     - name: Push de la imagen a Github Container Registry
-      run: docker push ghcr.io/xiomara-273/proyecto:3.0.0
-
+      run: docker build -t ghcr.io/xiomara-273/app-landing:3.0.0 .
     - name: Mostrar las variables o secrets
       run: |
         echo "Probando servidor ssh"
@@ -79,5 +78,5 @@ jobs:
         script: |
           echo "Desplegando servicios"
           cd ~/quintob
-          docker pull ghcr.io/xiomara-273/proyecto:3.0.0
+          docker pull ghcr.io/xiomara-273/app-landing:3.0.0
           docker stack deploy -c stack.yml borrar
