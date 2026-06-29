@@ -33,7 +33,7 @@ jobs:
       with:
         registry: ghcr.io
         username: ${{ github.actor }}
-        password: ${{ secrets.TOKEN_AV }}
+        password: ${{ secrets.GITHUB_TOKEN }} 
 
     - name: Contruir la imagen
       run: docker build -t ghcr.io/xiomara-273/proyecto:3.0.0 .
