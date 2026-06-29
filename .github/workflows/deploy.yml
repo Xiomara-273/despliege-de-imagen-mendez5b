@@ -28,11 +28,15 @@ jobs:
         python -m pip install --upgrade pip
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
+    - name: Login hacia Github Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.TOKEN_AV }}
+
     - name: Contruir la imagen
       run: docker build -t ghcr.io/xiomara-273/proyecto:3.0.0 .
-
-    - name: Login hacia Github Container Registry
-      run: echo "${{ secrets.TOKEN_AV }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
     - name: Push de la imagen a Github Container Registry
       run: docker push ghcr.io/xiomara-273/proyecto:3.0.0
