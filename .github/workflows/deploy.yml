@@ -10,6 +10,7 @@ permissions:
   contents: read
   packages: write
   id-token: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -39,20 +40,21 @@ jobs:
       run: docker build -t ghcr.io/xiomara-273/app-landing:3.0.0 .
 
     - name: Push de la imagen a Github Container Registry
-      run: docker build -t ghcr.io/xiomara-273/app-landing:3.0.0 .
+      run: docker push ghcr.io/xiomara-273/app-landing:3.0.0
+
     - name: Mostrar las variables o secrets
       run: |
         echo "Probando servidor ssh"
         echo "Host: ${{ secrets.VPS_HOST }}"
         echo "User: ${{ secrets.VPS_USER }}"
-        echo "Port: ${{ secrets.VPS_SSH_PORT }}"
+        echo "Port: 22"
 
     - name: Probar conexion ssh
       uses: appleboy/ssh-action@v0.1.5
       with:
         host: ${{ secrets.VPS_HOST }}
         username: ${{ secrets.VPS_USER }}
-        port: ${{ secrets.VPS_SSH_PORT }}
+        port: 22
         password: ${{ secrets.VPS_PASSWORD }}
         script: |
           echo "Conexión SSH exitosa"
@@ -63,7 +65,7 @@ jobs:
       with:
         host: ${{ secrets.VPS_HOST }}
         username: ${{ secrets.VPS_USER }}
-        port: ${{ secrets.VPS_SSH_PORT }}
+        port: 22
         password: ${{ secrets.VPS_PASSWORD }}
         source: "stack.yml,Mackefile"
         target: "/home/${{ secrets.VPS_USER }}/quintob"
@@ -73,7 +75,7 @@ jobs:
       with:
         host: ${{ secrets.VPS_HOST }}
         username: ${{ secrets.VPS_USER }}
-        port: ${{ secrets.VPS_SSH_PORT }}
+        port: 22
         password: ${{ secrets.VPS_PASSWORD }}
         script: |
           echo "Desplegando servicios"
