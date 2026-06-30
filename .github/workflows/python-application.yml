@@ -30,8 +30,8 @@ jobs:
       - name: Construir la imagen
         run: docker build -t ghcr.io/xiomara-273/proyecto:3.0.0 .
 
-      - name: Login hacia GitHub Container Registry
-        run: echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u Xiomara-273 --password-stdin
+     - name: Log in to GitHub Container Registry
+      run: echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u Xiomara-273 --password-stdin
 
       - name: Push de la imagen a GitHub Container Registry
         run: docker push ghcr.io/xiomara-273/proyecto:3.0.0
